@@ -1,0 +1,27 @@
+{% extends "services/base.html" %}
+
+{% block content %}
+
+<h1>{{ service.name }}</h1>
+<h2>{{ service.description }}</h2>
+
+{% if service.method_set.all %}
+Ta usługa udostępnia następujące metody:
+<ul>
+    {% for m in service.method_set.all %}
+    <li>
+    {{m.name}}
+    (
+    {% for p in m.methodparam_set.all %}
+    <b>{{p.name}}</b> : {{p.kind.name}}
+    {% if not forloop.last %},{% endif %}    
+    {% endfor %}
+    )
+    </li>
+    {% endfor %}
+</ul>
+{% else %}
+<p>Ta usługa nie udostępnia żadnych metod.</p>
+{% endif %}
+
+{% endblock %}
