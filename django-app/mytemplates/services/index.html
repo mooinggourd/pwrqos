@@ -1,0 +1,33 @@
+{% extends "services/base.html" %}
+
+{% block content %}
+
+<h1 class="service-list">Usługi</h1>
+{% if services %}
+
+<table class="service-list">
+
+{% for s in services %}
+    {% if forloop.counter0|divisibleby:"2" %}
+    <tr>
+    {% endif %}
+
+    <td>
+        <span class="service-name">
+            <a href="{% url services:details s.id %}">{{ s.name }}</a>
+        </span>
+        <span class="service-desc">{{ s.description }}</span>
+    </td>
+    
+    {% if not forloop.counter0|divisibleby:"2" or forloop.last %}
+    </tr>
+    {% endif %}    
+{% endfor %}
+
+</table>
+
+{% else %}
+<p>Lista usług jest pusta.</p>
+{% endif %}
+
+{% endblock %}

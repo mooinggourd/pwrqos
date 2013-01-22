@@ -1,0 +1,30 @@
+<html>
+    <head>
+        <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+        <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}css/main.css" />
+        <script type="text/javascript" src="{{ STATIC_URL }}jquery-1.9.0.min.js"></script>
+        <title>{% block title %}PWr QoS{% endblock %}</title>
+    </head>
+
+    <body>        
+        <div id="header-bar">
+            <div id="brand">
+                <a href="{% url home %}">
+                    PWr<span class="light-header">QoS</span>
+                </a>
+            </div>
+            <div id="top-nav">
+            {% block topnav %}
+                <a href="{% url services:measurement_wizard %}">Testuj usługi</a>
+                <a href="/admin">Panel administracyjny</a>                
+            {% endblock %}
+            </div>
+        </div>
+
+        <div id="content-box">
+            {% block content %}
+            Tu powinna być jakaś treść.
+            {% endblock %}
+        </div>
+    </body>
+</html>

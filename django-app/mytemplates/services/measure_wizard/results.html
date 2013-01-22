@@ -1,0 +1,25 @@
+{% extends "services/measure_wizard/base.html" %}
+
+{% block page_content %}
+
+<h1>Wyniki</h1>
+
+{% for method, metrics, results in methods %}
+<h2>Dla metody {{ method.name }}:</h2>
+<ul>
+    {% for m in metrics %}
+    <li>
+        {{ m.name }}
+        <ul>
+            {% for r in results %}
+            <li>{{ r }}</li>
+            {% endfor %}
+        </ul>    
+    </li>
+    {% endfor %}
+</ul>
+{% endfor %}
+
+{% endblock %}
+
+

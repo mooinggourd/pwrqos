@@ -1,0 +1,44 @@
+{% extends "services/base.html" %}
+
+{% block content %}
+
+<h1>Wyniki pomiarów</h1>
+
+{% if values %}
+    <table class="result-table">
+        <tr>
+            <th>Wartość</th>
+            <th>Typ</th>
+            <th>Metryka</th>
+            <th>Testowana metoda</th>
+            <th>Czas pomiaru</th>
+        </tr>        
+    {% for m in values %}
+        <tr>
+            <td>{{ m.value }}</td>
+            <td>{{ m.kind.name }}</td>
+            <td>{{ m.measurement.metric.name }}</td>
+            <td>{{ m.measurement.tested_method.name }}</td>
+            <td>{{ m.measurement.time }}</td>
+        </tr>
+    {% endfor %}    
+    </table>
+
+{% else %}
+{% if not form.errors and form.is_bound %}
+<strong>
+    Nie znaleziono żadnych pomiarów dla zadanych kryteriów wyszukiwania.
+</strong>
+{% endif %}
+{% endif %}
+
+<form action="" method="post">{% csrf_token %}
+    <table>
+    {{ form.as_table }}
+    </table> 
+    <div id="button-area">
+        <input type="submit" value="Szukaj" class="green" />
+    </div>
+</form>
+
+{% endblock %}

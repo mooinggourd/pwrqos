@@ -1,0 +1,56 @@
+{% extends "services/base.html" %}
+
+{% block content %}
+
+{% if step_names %}
+<ul id="step-list">
+    {% for step_id, step_name in step_names %}
+        {% if forloop.counter0 == wizard.steps.step0 %}
+            <li class="step-active">{{ step_name }}</li>
+        {% else %}            
+            <li>{{ step_name }}</li>
+        {% endif %}
+    {% endfor %}
+</ul>    
+{% endif %}
+
+{% block page_content %}
+<form action="" method="post" id="wizard-form">{% csrf_token %}
+    <table>
+    {% block page_table_content %}
+    {{ wizard.management_form }}
+    
+    {% if wizard.form.forms %}
+        {{ wizard.form.management_form }}
+        {% for form in wizard.form.forms %}
+            {{ form }}
+        {% endfor %}
+    {% else %}
+        {{ wizard.form }}
+    {% endif %}
+
+    {% endblock %}
+    </table>
+
+    <div id="button-area">    
+        <a href="{% url services:index %}" class="button gray" 
+            style="margin-right: 16px;">
+            Anuluj
+        </a>
+        {% if wizard.steps.prev %}
+        <button name="wizard_goto_step" type="submit" 
+            value="{{ wizard.steps.first }}" class="button gray">
+            Od początku
+        </button>
+        <button name="wizard_goto_step" type="submit"
+            value="{{ wizard.steps.prev }}" class="button gray">
+            Wstecz
+        </button>
+        {% endif %}
+        <input type="submit" value="Dalej" class="green" id="btn_submit" />
+    </div>
+</form>
+{% endblock %}
+
+{% endblock %}
+
