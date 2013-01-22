@@ -9,6 +9,7 @@ from services.models import *
 
 from django import forms
 from django.contrib.formtools.wizard.views import SessionWizardView
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
 from datetime import datetime
 from suds.client import Client
@@ -45,7 +46,7 @@ class MeasurementsForm(forms.Form):
         label='Metody')
     metric = forms.ModelMultipleChoiceField(queryset=Metric.objects.all(),
         label='Metryki')
-    
+    page = forms.IntegerField(initial=0, widget=forms.HiddenInput())
     # TODO: dodać pola z datami od/do    
  
 class MeasurementsList(FormView):
@@ -71,7 +72,16 @@ class MeasurementsList(FormView):
             .filter(metric__pk__in=metric_ids)
             
         result = Value.objects.filter(measurement__in=queryset)
-        return result       
+        paginator = Paginator(result, 5)
+        
+        page_num = post_params.get('page', 1)
+        try:        
+            page = paginator.page(page_num)
+        except PageNotAnInteger:
+            page = paginator.page(1)
+        except EmptyPage:
+            page = paginator.page(paginator.num_pages)
+        return page
     
 class MeasurementWizard(SessionWizardView):
     FORMS = [

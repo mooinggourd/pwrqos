@@ -191,10 +191,26 @@ select.metric_selection {
 
 table.result-table {
     border: 1px solid black;
+    width: 100%;
+}
+
+table.result-table th {
+    text-align: center;
+}
+
+table.result-table tr.even {
+    background-color: #5B80B2;
+    color: #eee;
 }
 
 h1.service-list {
     margin-left: 16px;
+}
+
+div.pagination {
+    text-align: center;
+    margin-top: 8px;
+    margin-bottom: 8px;
 }
 
 #top-nav {

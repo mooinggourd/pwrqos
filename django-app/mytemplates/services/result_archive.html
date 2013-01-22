@@ -14,7 +14,11 @@
             <th>Czas pomiaru</th>
         </tr>        
     {% for m in values %}
+        {% if forloop.counter0|divisibleby:"2" %}
+        <tr class="even">
+        {% else %}
         <tr>
+        {% endif %}
             <td>{{ m.value }}</td>
             <td>{{ m.kind.name }}</td>
             <td>{{ m.measurement.metric.name }}</td>
@@ -23,6 +27,22 @@
         </tr>
     {% endfor %}    
     </table>
+
+    <div class="pagination">
+        <span class="step-links">
+            {% if values.has_previous %}
+                <button id="btn_prev" type="submit" class="button gray">Poprzednia</button>
+            {% endif %}
+
+            <span class="current">
+                Strona {{ values.number }} z {{ values.paginator.num_pages }}.
+            </span>
+
+            {% if values.has_next %}
+                <button id="btn_next" type="submit" class="button gray">Następna</button>
+            {% endif %}
+        </span>
+    </div>
 
 {% else %}
 {% if not form.errors and form.is_bound %}
@@ -37,8 +57,31 @@
     {{ form.as_table }}
     </table> 
     <div id="button-area">
-        <input type="submit" value="Szukaj" class="green" />
+        <input id="btn_submit" type="submit" value="Szukaj" class="green" />
     </div>
 </form>
+
+<script type="text/javascript">
+
+$(function() {
+    // obsługa podziału wyników na strony
+    
+    $('#btn_submit').click(function() {
+        $('#id_page').val('1');
+        return true;
+    });
+
+    $('#btn_next').click(function() {
+        $('#id_page').val('{{ values.next_page_number }}');
+        $('form').submit();
+    });
+
+    $('#btn_prev').click(function() {
+        $('#id_page').val('{{ values.previous_page_number }}');
+        $('form').submit();
+    });
+});
+
+</script>
 
 {% endblock %}
