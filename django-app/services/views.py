@@ -47,12 +47,21 @@ class MeasurementsForm(forms.Form):
     metric = forms.ModelMultipleChoiceField(queryset=Metric.objects.all(),
         label='Metryki')
     page = forms.IntegerField(initial=0, widget=forms.HiddenInput())
+    sort_by = forms.CharField(required=False, widget=forms.HiddenInput())    
     # TODO: dodać pola z datami od/do    
  
 class MeasurementsList(FormView):
     template_name = 'services/result_archive.html'
     context_object_name = 'measurements'
     form_class = MeasurementsForm    
+    
+    sort_fields = {
+        'value': 'value',
+        'type': 'kind__name',
+        'metric': 'measurement__metric__name',
+        'method': 'measurement__tested_method__name',
+        'date': 'measurement__time',
+    }
     
     def form_valid(self, form):
         context = self.get_context_data(form=form)
@@ -72,8 +81,21 @@ class MeasurementsList(FormView):
             .filter(metric__pk__in=metric_ids)
             
         result = Value.objects.filter(measurement__in=queryset)
-        paginator = Paginator(result, 5)
         
+        sort_by = post_params.get('sort_by')
+        if sort_by:
+            if sort_by[0] == '-':        
+                key = '-'
+                sort_by = sort_by[1:]
+            else:
+                key = ''
+        
+            if sort_by in self.sort_fields:                
+                result = result.order_by(key + self.sort_fields[sort_by])
+                
+        print 'sortby ', sort_by
+        
+        paginator = Paginator(result, 5)        
         page_num = post_params.get('page', 1)
         try:        
             page = paginator.page(page_num)

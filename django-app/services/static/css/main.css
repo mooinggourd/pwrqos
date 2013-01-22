@@ -207,6 +207,14 @@ h1.service-list {
     margin-left: 16px;
 }
 
+button.header-button {
+    width: 100%;
+    background-color: #fff;
+    border-width: 0px;
+    text-decoration: underline;
+    cursor: pointer;
+}
+
 div.pagination {
     text-align: center;
     margin-top: 8px;

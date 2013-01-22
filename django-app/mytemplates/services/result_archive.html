@@ -7,11 +7,11 @@
 {% if values %}
     <table class="result-table">
         <tr>
-            <th>Wartość</th>
-            <th>Typ</th>
-            <th>Metryka</th>
-            <th>Testowana metoda</th>
-            <th>Czas pomiaru</th>
+            <th><button name="value" class="header-button">Wartość</button></th>
+            <th><button name="type" class="header-button">Typ</button></th>
+            <th><button name="metric" class="header-button">Metryka</button></th>
+            <th><button name="method" class="header-button">Testowana metoda</button></th>
+            <th><button name="date" class="header-button">Czas pomiaru</button></th>
         </tr>        
     {% for m in values %}
         {% if forloop.counter0|divisibleby:"2" %}
@@ -66,6 +66,16 @@
 $(function() {
     // obsługa podziału wyników na strony
     
+    $('button.header-button').click(function(e) {
+        var old_val = $('#id_sort_by').val();
+        if (old_val == e.target.name)
+            $('#id_sort_by').val('-' + e.target.name);        
+        else
+            $('#id_sort_by').val(e.target.name);
+        $('#id_page').val('1');        
+        $('form').submit();        
+    });
+    
     $('#btn_submit').click(function() {
         $('#id_page').val('1');
         return true;
@@ -80,6 +90,20 @@ $(function() {
         $('#id_page').val('{{ values.previous_page_number }}');
         $('form').submit();
     });
+        
+    var sorted_by = $('#id_sort_by').val();
+    var desc = false;
+    if (sorted_by.length > 0 && sorted_by[0] == '-') {
+        sorted_by = sorted_by.substr(1);
+        desc = true;
+    }
+    
+    if ($('button[name=' + sorted_by + ']').length > 0)
+    {
+        var pushed_button = $('button[name=' + sorted_by + ']').first();
+        pushed_button.css('font-weight', 'bold');
+    }
+    console.log($('button[name=' + sorted_by + ']').length);
 });
 
 </script>
