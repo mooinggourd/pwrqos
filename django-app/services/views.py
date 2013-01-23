@@ -14,7 +14,7 @@ from django import forms
 from django.contrib.formtools.wizard.views import SessionWizardView
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
-from datetime import datetime
+from datetime import datetime, time
 from suds.client import Client
 import json
 
@@ -104,6 +104,8 @@ class MeasurementsForm(forms.Form):
         label='Metody')
     metric = forms.ModelMultipleChoiceField(queryset=Metric.objects.all(),
         label='Metryki')
+    start = forms.DateField(required=False, label='Data początkowa')
+    end = forms.DateField(required=False, label='Data końcowa')    
     page = forms.IntegerField(initial=0, widget=forms.HiddenInput())
     sort_by = forms.CharField(required=False, widget=forms.HiddenInput())    
     # TODO: dodać pola z datami od/do    
@@ -150,6 +152,23 @@ class MeasurementsList(FormView):
         
             if sort_by in self.sort_fields:                
                 result = result.order_by(key + self.sort_fields[sort_by])
+        
+        start_raw = post_params.get('start')
+        if start_raw:
+            try:
+                start = datetime.strptime(start_raw, '%d.%m.%Y')
+                result = result.filter(measurement__time__gte=start)
+            except ValueError:
+                pass
+                
+        end_raw = post_params.get('end')
+        if end_raw:
+            try:
+                end = datetime.combine(datetime.strptime(end_raw, '%d.%m.%Y').date(),
+                    time.max)
+                result = result.filter(measurement__time__lte=end)
+            except ValueError:
+                pass
         
         paginator = Paginator(result, 5)        
         page_num = post_params.get('page', 1)

@@ -64,8 +64,12 @@
 <script type="text/javascript">
 
 $(function() {
-    // obsługa podziału wyników na strony
     
+    $.datepicker.setDefaults($.datepicker.regional["pl"]);    
+    $("#id_start").datepicker();
+    $("#id_end").datepicker();        
+    
+    // obsługa podziału wyników na strony    
     $('button.header-button').click(function(e) {
         var old_val = $('#id_sort_by').val();
         if (old_val == e.target.name)

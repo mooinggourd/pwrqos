@@ -107,6 +107,10 @@ ul#step-list li:after {
     z-index: 10;
 }
 
+#id_start, #id_end {
+    width: 17em;
+}
+
 input[type='submit'] {  
     color: #050;
     background-color: green;
