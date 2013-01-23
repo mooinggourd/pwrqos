@@ -207,8 +207,18 @@ table.wizard-results {
     width: 100%;
 }
 
-table.wizard-results tr.method-row {
+table.wizard-results tr.service-row {
     background-color: #434343;
+    color: #fff;
+    font-weight: bold;
+}
+
+table.wizard-results td.metric-name-cell {
+    padding-left: 32px;
+}
+
+table.wizard-results tr.method-row {
+    background-color: #1C4587;
     color: #fff;
     font-weight: bold;
 }

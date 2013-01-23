@@ -226,16 +226,24 @@ class MeasurementWizard(SessionWizardView):
         methods = data.get('methods', [])
 
         ajax_data = []
-        metric_selections = []
+        
+        metric_selections = {
+            # service: { method: [metrics] }
+        }
+                       
         for i, method in enumerate(methods):
             key = 'method%d' % i
             metrics = data.get(key, [])
 
             ajax_data.append([method.pk, list(metrics.values_list('pk', flat=True))])
-            metric_selections.append((method, metrics))
+            if method.service not in metric_selections:
+                metric_selections[method.service] = {}
+            
+            metric_selections[method.service][method] = metrics
 
         context = {
-            'methods': metric_selections,
+            'services': metric_selections,
             'ajax_data': json.dumps(ajax_data),
         }
         return render(self.request, 'services/measure_wizard/results.html', context)
+

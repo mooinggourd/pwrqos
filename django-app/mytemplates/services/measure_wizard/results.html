@@ -5,18 +5,29 @@
 <h1>Wyniki</h1>
 
 <table class="wizard-results">
-{% for method, metrics in methods %}
-    <tr class="method-row">
-        <td colspan="2">Metoda {{ method.name }}</td>
+{% for service, methods in services.items %}
+    <tr class="service-row">
+        <td colspan="2">Usługa <i>{{ service.name }}</i></td>
     </tr>
+    {% for method, metrics in methods.items %}
+    <tr class="method-row">
+        <td colspan="2">Metoda <i>{{ method.name }}</i></td>
+    </tr>
+    
     {% for m in metrics %}
     <tr>
-        <td>{{ m.name }}</td>
+        <td class="metric-name-cell">{{ m.name }}</td>
         <td id="method-{{ method.pk }}-metric-{{ m.pk }}" class="result-cell">
             <img src="{{ STATIC_URL }}img/spinner.gif" />
         </td>
     </tr>
     {% endfor %}    
+    
+    {% endfor %}
+    
+    <tr>
+        <td colspan="2">&nbsp;</td>
+    </tr>    
 {% endfor %}
 </table>
 
@@ -51,26 +62,4 @@ $(function() {
 
 </script>
 
-{% comment %}
-
-{% for method, metrics, results in methods %}
-<h2>Dla metody {{ method.name }}:</h2>
-<ul>
-    {% for m in metrics %}
-    <li>
-        {{ m.name }}
-        <ul>
-            {% for r in results %}
-            <li>{{ r }}</li>
-            {% endfor %}
-        </ul>    
-    </li>
-    {% endfor %}
-</ul>
-{% endfor %}
-
-{% endcomment %}
-
 {% endblock %}
-
-
