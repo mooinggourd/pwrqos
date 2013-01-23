@@ -8,9 +8,9 @@ class Service(models.Model):
     name = models.CharField(max_length=256, verbose_name='Nazwa')
     description = models.TextField(verbose_name='Opis')
     wsdl_url = models.URLField(verbose_name='Adres pliku WSDL')
-    target_namespace = models.URLField(null=True, 
+    target_namespace = models.URLField(null=True, blank=True,
         verbose_name='URI docelowej przestrzeni nazw')
-    internal_name = models.CharField(max_length=256, null=True, 
+    internal_name = models.CharField(max_length=256, null=True, blank=True,
         verbose_name='Wewnętrzna nazwa')
 
     class Meta:

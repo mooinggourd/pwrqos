@@ -39,6 +39,37 @@ var ajax_data = {{ ajax_data|safe }};
 */
 
 $(function() {
+    
+    $(ajax_data).each(function() {
+        var method = this[0];
+        var metrics = this[1];
+        $(metrics).each(function(index, metric) {
+            console.log('Running test for method ', method, ' using metric ', metric);
+
+            $.ajax({
+                type: 'POST',
+                url: '{% url services:ajax_measure %}',
+                data: {
+                    method_pk: method,
+                    metric_pk: metric
+                }, 
+                success: function(data) {
+                    $('#method-' + method + '-metric-' + metric).text(data);
+                    console.log('from method ', method, ', metric ', metric, ' got ', data);
+                },
+                async: true
+            }).error(function() {
+                    $('#method-' + method + '-metric-' + metric).html('<img class="error-icon" src="{{ STATIC_URL }}img/error.png" alt="Wystąpił błąd podczas pomiaru." title="Wystąpił błąd podczas pomiaru."/>');
+                    console.log('error ', method, ', metric ', metric);
+                });
+        });
+    });
+});
+
+{% comment %}
+
+$(function() {
+
     $(ajax_data).each(function() {
         var method = this[0];
         var metrics = this[1];
@@ -59,6 +90,8 @@ $(function() {
         });
     });
 });
+
+{% endcomment %}
 
 </script>
 

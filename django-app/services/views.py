@@ -123,7 +123,19 @@ class MeasurementsList(FormView):
         'date': 'measurement__time',
     }
     
+    def get_form(self, form_class):
+        form = super(FormView, self).get_form(form_class)
+        service_id = self.kwargs['service']
+        form.fields['method'].queryset = Method.objects.filter(service__pk=service_id)
+        return form
+            
+    #def get(self, *args, **kwargs):
+    #    result = super(FormView, self).get(*args, **kwargs)
+    #    print 'get -> ', self.kwargs
+    #    return result
+    
     def form_valid(self, form):
+        print self.kwargs
         context = self.get_context_data(form=form)
         context.update({'values': self.get_queryset(self.request.POST)})        
         return self.render_to_response(context)
@@ -170,7 +182,7 @@ class MeasurementsList(FormView):
             except ValueError:
                 pass
         
-        paginator = Paginator(result, 5)        
+        paginator = Paginator(result, 15)        
         page_num = post_params.get('page', 1)
         try:        
             page = paginator.page(page_num)
