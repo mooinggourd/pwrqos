@@ -55,7 +55,6 @@ ul#step-list li {
 ul#step-list li.step-active {
     background-color: #1c4587;
     color: #fff;
-
 }
 
 ul#step-list li:first-child {
@@ -79,7 +78,6 @@ ul#step-list li:first-child:before {
     border-color: #9fc5e8;
 }
 
-
 ul#step-list li.step-active:first-child:before {
     border-color: #1c4587;
 }
@@ -94,6 +92,19 @@ ul#step-list li:not(:first-child):before {
     border-width: 28px 0 28px 28px;
     border-style: solid;
     border-color: transparent transparent transparent #fff;
+}
+
+ul#step-list li:after {
+    content: '';
+    position: absolute;
+    right: -28px;
+    top: 0px;
+    width: 0;
+    height: 0;
+    border-width: 28px 0 28px 28px;
+    border-style: solid;
+    border-color: transparent transparent transparent #9fc5e8;
+    z-index: 10;
 }
 
 input[type='submit'] {  
@@ -126,19 +137,6 @@ input[type='submit'].green:hover {
 	filter:  progid:DXImageTransform.Microsoft.gradient(startColorstr='#6b9d28', endColorstr='#436b0c');
 }
 
-ul#step-list li:after {
-    content: '';
-    position: absolute;
-    right: -28px;
-    top: 0px;
-    width: 0;
-    height: 0;
-    border-width: 28px 0 28px 28px;
-    border-style: solid;
-    border-color: transparent transparent transparent #9fc5e8;
-    z-index: 10;
-}
-
 table.service-list {
     border-spacing: 16px;
 }
@@ -169,10 +167,23 @@ table.service-list input[type='checkbox'] {
     position: absolute;
     bottom: 0;
     right: 0;
+    display: inline;
 }
 
 th {
     text-align: right;
+}
+
+ul.errorlist {
+    padding: 0;
+}
+
+table.result-table-form td ul.errorlist li {
+    padding-left: 0;
+}
+
+td ul.errorlist li {
+    padding: 0 0 0 22px;
 }
 
 table ul.errorlist {
@@ -187,8 +198,7 @@ table select {
 select.method_selection, select.metric_selection {
     margin-top: 8px;
     margin-left: -8px;
-    width: 400px;
-    display: none;    
+    width: 400px; 
 }
 
 table.result-table {
@@ -282,6 +292,7 @@ div.pagination {
 
 ul.errorlist {
     color: #f00;
+    list-style-type: none;
 }
 
 #brand {

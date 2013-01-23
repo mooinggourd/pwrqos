@@ -30,5 +30,19 @@
             Tu powinna być jakaś treść.
             {% endblock %}
         </div>
+        
+    <script type="text/javascript">
+
+    $(function() {
+        $('select[multiple=multiple]').multiselect({
+            checkAllText: 'Zaznacz wszystkie',
+            uncheckAllText: 'Odznacz wszystkie',
+            noneSelectedText: 'Kliknij, aby wybrać...',
+            selectedText: 'Liczba wybranych elementów: #.'        
+        });
+    });
+
+    </script>        
+    
     </body>
 </html>

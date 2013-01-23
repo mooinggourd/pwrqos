@@ -711,7 +711,7 @@ table#change-history tbody th {
 
 #container {
     position: relative;
-    width: 100%;
+    /*width: 100%;*/
     min-width: 760px;
     padding: 0 100px 0 100px;
     display: inline-table;
