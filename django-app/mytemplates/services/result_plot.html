@@ -1,0 +1,65 @@
+{% extends "services/base.html" %}
+
+{% block misc_scripts %}
+<script type="text/javascript" src="{{ STATIC_URL }}jquery.flot.js">
+</script>
+{% endblock %}
+
+{% block content %}
+
+<h1>Wyniki pomiarów</h1>
+
+{% if values %}
+<div id="placeholder" style="width:800px; height:300px;"></div>
+
+<script type="text/javascript">
+
+$(function() {
+    var dmin = {{ min_series|safe }};
+    var davg = {{ avg_series|safe }}; 
+    var dmax = {{ max_series|safe }};          
+
+    $.plot($("#placeholder"), 
+        [ 
+            { data: dmin, label: 'Wartości minimalne' },
+            { data: davg, label: 'Wartości średnie' },
+            { data: dmax, label: 'Wartości maksymalne' }
+        ], {
+        xaxis: {
+            ticks: {{ ticks|safe }}
+        },
+        legend: { position: 'nw' }
+    });    
+});
+
+</script>
+
+{% else %}
+{% if not form.errors and form.is_bound %}
+<strong>
+    Nie znaleziono żadnych wartości liczbowych dla zadanych kryteriów wyszukiwania.
+</strong>
+{% endif %}
+{% endif %}
+
+<form action="" method="post">{% csrf_token %}
+    <table class="result-table-form">
+    {{ form.as_table }}
+    </table> 
+    <div id="button-area">
+        <input id="btn_submit" type="submit" value="Zastosuj" class="green" />
+    </div>
+</form>
+
+
+<script type="text/javascript">
+
+$(function() {
+    $.datepicker.setDefaults($.datepicker.regional["pl"]);    
+    $("#id_start").datepicker();
+    $("#id_end").datepicker(); 
+});
+
+</script>
+
+{% endblock %}

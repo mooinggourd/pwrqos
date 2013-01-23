@@ -8,6 +8,8 @@
         <script type="text/javascript" src="{{ STATIC_URL }}jquery-ui-1.10.0.custom.min.js"></script>
         <script type="text/javascript" src="{{ STATIC_URL }}jquery.multiselect.min.js"></script>
         <script type="text/javascript" src="{{ STATIC_URL }}jquery.ui.datepicker-pl.js"></script>
+        {% block misc_scripts %}
+        {% endblock %}
         <title>{% block title %}PWr QoS{% endblock %}</title>
     </head>
 

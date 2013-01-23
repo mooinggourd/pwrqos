@@ -21,7 +21,10 @@ Ta usługa udostępnia następujące metody:
     {% endfor %}
 </ul>
 
-<a href="{% url services:measurements service.pk %}" class="button green">Archiwalne wyniki pomiarów</a>
+<a href="{% url services:measurements service.pk %}" class="button green">Tabela archiwalnych wyników pomiarów</a>
+<a href="{% url services:plots service.pk %}" class="button green">Wykres archiwalnych wyników pomiarów</a>
+
+
 {% else %}
 <p>Ta usługa nie udostępnia żadnych metod.</p>
 {% endif %}

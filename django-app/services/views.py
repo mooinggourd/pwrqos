@@ -14,7 +14,7 @@ from django import forms
 from django.contrib.formtools.wizard.views import SessionWizardView
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
-from datetime import datetime, time
+from datetime import datetime, time, timedelta
 from suds.client import Client
 import json
 
@@ -43,7 +43,8 @@ def run_test(method, metric):
         wrapper = getattr(c.service, metric_mname)  # może rzucić MethodNotFound
         result = wrapper(service_iname, method_wsdl, method_lname, method_tns)
         measurement = Measurement(metric=metric, 
-            time=datetime.now(), tested_method=method)
+            time=datetime.now(),
+            tested_method=method)
         measurement.save()
 
         kind_name = matching_types.get(type(result), 'unknown')
@@ -118,7 +119,6 @@ class MeasurementsForm(forms.Form):
     end = forms.DateField(required=False, label='Data końcowa')    
     page = forms.IntegerField(initial=0, widget=forms.HiddenInput())
     sort_by = forms.CharField(required=False, widget=forms.HiddenInput())    
-    # TODO: dodać pola z datami od/do    
  
 class MeasurementsList(FormView):
     template_name = 'services/result_archive.html'
@@ -202,6 +202,108 @@ class MeasurementsList(FormView):
             page = paginator.page(paginator.num_pages)
         return page
     
+class MeasurementsPlotForm(forms.Form):
+    method = forms.ModelChoiceField(queryset=Method.objects.all(),
+        label='Metoda')
+    metric = forms.ModelChoiceField(queryset=Metric.objects.all(),
+        label='Metryka')
+    start = forms.DateField(required=True, label='Data początkowa')
+    end = forms.DateField(required=True, label='Data końcowa')            
+    
+class MeasurementsPlotView(FormView):
+    template_name = 'services/result_plot.html'
+    context_object_name = 'measurements'
+    form_class = MeasurementsPlotForm    
+       
+    def get_form(self, form_class):
+        form = super(FormView, self).get_form(form_class)
+        service_id = self.kwargs['service']
+        form.fields['method'].queryset = Method.objects.filter(service__pk=service_id)
+        return form
+    
+    def form_valid(self, form):
+        print self.request.POST
+        context = self.get_context_data(form=form)
+        context.update(self.get_additional_context(self.request.POST))
+        return self.render_to_response(context)
+    
+    def get_additional_context(self, post_params):
+        try:
+            method_ids = map(int, post_params.getlist('method'))
+            metric_ids = map(int, post_params.getlist('metric'))
+        except:
+            raise Http404()
+        
+        queryset = Measurement.objects.all()
+
+        queryset = queryset.filter(tested_method__pk__in=method_ids) \
+            .filter(metric__pk__in=metric_ids)
+            
+        result = Value.objects.filter(measurement__in=queryset, kind__name='float',
+            kind__namespace='http://www.w3.org/2001/XMLSchema')
+        
+        start_raw = post_params.get('start')
+        if start_raw:
+            try:
+                start = datetime.strptime(start_raw, '%d.%m.%Y')
+                result = result.filter(measurement__time__gte=start)
+            except ValueError:
+                pass
+                
+        end_raw = post_params.get('end')
+        if end_raw:
+            try:
+                end = datetime.combine(datetime.strptime(end_raw, '%d.%m.%Y').date(),
+                    time.max)
+                result = result.filter(measurement__time__lte=end)
+            except ValueError:
+                pass
+        
+        s, e = start.date(), end.date()
+        if s > e:
+            s, e = e, s
+            
+        ticks = []
+        count = 0        
+        while s <= e:
+            ticks.append([count, s.strftime('%d.%m')])
+            count += 1
+            s += timedelta(days=1)       
+        
+        num_days = (end.date() - start.date()).days + 1
+
+        values_per_day = []
+        for i in range(num_days):
+            values_per_day.append([])
+
+        for v in result:
+            v_date = v.measurement.time.date()
+            idx = (v_date - start.date()).days
+            values_per_day[idx].append(v.value)
+            
+        min_series = []        
+        avg_series = []
+        max_series = []
+        for i, vals in enumerate(values_per_day):
+            if len(vals):
+                avg_series.append([i, sum(map(float, vals)) / len(vals)])
+                max_series.append([i, max(map(float, vals))])
+                min_series.append([i, min(map(float, vals))])                
+            else:
+                avg_series.append([i, 0.0])
+                max_series.append([i, 0.0])
+                min_series.append([i, 0.0])                
+               
+        return {
+            'values': result,
+            'start_date': start,
+            'end_date': end,
+            'ticks': ticks,
+            'min_series': min_series,
+            'avg_series': avg_series,
+            'max_series': max_series,                        
+        }
+            
 class MeasurementWizard(SessionWizardView):
     FORMS = [
         ('service_selection', services.forms.ServiceSelectionForm),

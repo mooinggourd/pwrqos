@@ -6,6 +6,10 @@ urlpatterns = patterns('',
     url(r'^measurements/service/(?P<service>\d+)/$',
         views.MeasurementsList.as_view(),
         name='measurements'),    
+
+    url(r'^plot/service/(?P<service>\d+)/$',
+        views.MeasurementsPlotView.as_view(),
+        name='plots'),    
     
     url(r'^(?P<service_id>\d+)/$', views.details, name='details'),
     url(r'^measure/$', views.MeasurementWizard.as_view(views.MeasurementWizard.FORMS),
