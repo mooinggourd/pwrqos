@@ -184,9 +184,11 @@ table select {
     width: 320px;
 }
 
-select.metric_selection {
+select.method_selection, select.metric_selection {
     margin-top: 8px;
     margin-left: -8px;
+    width: 400px;
+    display: none;    
 }
 
 table.result-table {

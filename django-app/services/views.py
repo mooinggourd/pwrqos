@@ -169,8 +169,8 @@ class MeasurementWizard(SessionWizardView):
     ]
     TEMPLATES = {
         "service_selection": "services/measure_wizard/service_selection.html",
-        "method_selection": "services/measure_wizard/base.html",
-        "metric_selection": "services/measure_wizard/metric_selection.html",       
+        "method_selection": "services/measure_wizard/method_selection.html",
+        "metric_selection": "services/measure_wizard/metric_selection.html",
     }
     NAMES = [
         ('service_selection', 'Wybór usługi'),

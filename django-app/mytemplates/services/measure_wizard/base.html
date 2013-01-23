@@ -52,5 +52,18 @@
 </form>
 {% endblock %}
 
+<script type="text/javascript">
+
+$(function() {
+    $('select[multiple=multiple]').multiselect({
+        checkAllText: 'Zaznacz wszystkie',
+        uncheckAllText: 'Odznacz wszystkie',
+        noneSelectedText: 'Kliknij, aby wybrać...',
+        selectedText: 'Liczba wybranych elementów: #.'        
+    });
+});
+
+</script>
+
 {% endblock %}
 
