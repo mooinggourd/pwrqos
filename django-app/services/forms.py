@@ -47,7 +47,8 @@ class MetricSelectionForm(MeasurementWizardForm):
             dom_id = 'id_method%d' % i
             label = mark_safe(u'Metryki dla metody %s z usługi %s.<br/>' % (m.name, m.service.name))
             self.fields['method%d' % i] = forms.ModelMultipleChoiceField(
-                queryset=Metric.objects.all(), 
+                queryset=Metric.objects.all(),
+                initial= Metric.objects.all(),  
                 label=label, 
                 error_messages={'required': 'Wybierz co najmniej jedną metrykę.'},
                 widget=forms.SelectMultiple(attrs = {'class': 'metric_selection'}))

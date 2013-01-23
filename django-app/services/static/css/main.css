@@ -203,6 +203,31 @@ table.result-table tr.even {
     color: #eee;
 }
 
+table.wizard-results {
+    width: 100%;
+}
+
+table.wizard-results tr.method-row {
+    background-color: #434343;
+    color: #fff;
+    font-weight: bold;
+}
+
+table.wizard-results td {
+    padding-left: 8px;
+}
+
+table.wizard-results td.result-cell {
+    text-align: right;
+}
+
+table.wizard-results img {
+    width: 32px;
+    height: 32px;
+    float: right;
+    padding-right: 8px;   
+}
+
 h1.service-list {
     margin-left: 16px;
 }

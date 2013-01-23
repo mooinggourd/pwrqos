@@ -5,6 +5,9 @@ from django.http import HttpResponse, Http404, HttpResponseRedirect
 from django.shortcuts import render, render_to_response, get_object_or_404
 from django.views.generic import ListView, FormView
 from django.core.urlresolvers import reverse
+from django.views.decorators.http import require_http_methods
+from django.views.decorators.csrf import csrf_exempt
+
 from services.models import *
 
 from django import forms
@@ -13,8 +16,63 @@ from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
 from datetime import datetime
 from suds.client import Client
+import json
 
 import services.forms
+
+# TODO: przenieść w lepsze miejsce
+def run_test(method, metric):
+    metric_mname = metric.method.name
+    metric_wsdl = metric.method.service.wsdl_url
+
+    method_wsdl = method.service.wsdl_url
+    method_lname = method.name
+    method_tns = method.service.target_namespace
+    service_iname = method.service.internal_name
+    
+    try:
+        c = Client(metric_wsdl)
+        wrapper = getattr(c.service, metric_mname)  # może rzucić MethodNotFound
+        result = wrapper(service_iname, method_wsdl, method_lname, method_tns)
+        measurement = Measurement(metric=metric, 
+            time=datetime.now(), tested_method=method)
+        measurement.save()
+
+        # TODO: wykrywanie typów zwracanych wartości
+        try:          
+            v = float(result)
+            kind_name = 'float'
+        except ValueError:
+            try:                        
+                v = int(result)
+                kind_name = 'int'
+            except ValueError:                    
+                v = unicode(result)
+                kind_name = 'string'
+            
+        kind, _ = Kind.objects.get_or_create(name=kind_name,
+            namespace='http://www.w3.org/2001/XMLSchema')
+        value = Value(value=v, kind=kind, measurement=measurement)
+        value.save()
+        
+        return result            
+    except:
+        raise
+
+@csrf_exempt
+@require_http_methods(['POST'])
+def run_text_ajax(request):
+    try:
+        method_pk = request.POST['method_pk']
+        metric_pk = request.POST['metric_pk']
+    except:
+        return HttpResponse(status=400, content='Missing parameters.')
+   
+    method = get_object_or_404(Method, pk=method_pk)
+    metric = get_object_or_404(Metric, pk=metric_pk)
+                   
+    result = run_test(method, metric)                   
+    return HttpResponse(unicode(result))
 
 def index(request):
     context = {
@@ -92,8 +150,6 @@ class MeasurementsList(FormView):
         
             if sort_by in self.sort_fields:                
                 result = result.order_by(key + self.sort_fields[sort_by])
-                
-        print 'sortby ', sort_by
         
         paginator = Paginator(result, 5)        
         page_num = post_params.get('page', 1)
@@ -164,69 +220,22 @@ class MeasurementWizard(SessionWizardView):
             prev_data = self.get_cleaned_data_for_step('method_selection')
             kwargs.update({'methods': prev_data['methods']})                        
         return kwargs
-        
-    # TODO: przenieść do osobnej klasy albo w inne miejsce
-    def run_test(self, method, metric):    
-        metric_mname = metric.method.name
-        metric_wsdl = metric.method.service.wsdl_url
-
-        method_wsdl = method.service.wsdl_url
-        method_lname = method.name
-        method_tns = method.service.target_namespace
-        service_iname = method.service.internal_name
-        
-        try:
-            c = Client(metric_wsdl)
-            wrapper = getattr(c.service, metric_mname)  # może rzucić MethodNotFound
-            result = wrapper(service_iname, method_wsdl, method_lname, method_tns)
-            measurement = Measurement(metric=metric, 
-                time=datetime.now(), tested_method=method)
-            measurement.save()
-
-            # TODO: wykrywanie typów zwracanych wartości
-            try:          
-                v = float(result)
-                kind_name = 'float'
-            except ValueError:
-                try:                        
-                    v = int(result)
-                    kind_name = 'int'
-                except ValueError:                    
-                    v = unicode(result)
-                    kind_name = 'string'
-                
-            kind, _ = Kind.objects.get_or_create(name=kind_name,
-                namespace='http://www.w3.org/2001/XMLSchema')
-            value = Value(value=v, kind=kind, measurement=measurement)
-            value.save()
-            
-            return result            
-        except:
-            raise
-                            
+          
     def done(self, form_list, **kwargs):
         data = self.get_all_cleaned_data()
         methods = data.get('methods', [])
 
+        ajax_data = []
         metric_selections = []
         for i, method in enumerate(methods):
             key = 'method%d' % i
             metrics = data.get(key, [])
-            
-            # wywołaj odpowiednie testy
-            results = []
-            for metric in metrics:                
-                try:
-                    result = self.run_test(method, metric)
-                    results.append(result)
-                except:
-                    results.append('Błąd!')
-                    #raise
-                    continue
-            
-            metric_selections.append((method, metrics, results))
+
+            ajax_data.append([method.pk, list(metrics.values_list('pk', flat=True))])
+            metric_selections.append((method, metrics))
 
         context = {
             'methods': metric_selections,
+            'ajax_data': json.dumps(ajax_data),
         }
         return render(self.request, 'services/measure_wizard/results.html', context)

@@ -4,6 +4,55 @@
 
 <h1>Wyniki</h1>
 
+<table class="wizard-results">
+{% for method, metrics in methods %}
+    <tr class="method-row">
+        <td colspan="2">Metoda {{ method.name }}</td>
+    </tr>
+    {% for m in metrics %}
+    <tr>
+        <td>{{ m.name }}</td>
+        <td id="method-{{ method.pk }}-metric-{{ m.pk }}" class="result-cell">
+            <img src="{{ STATIC_URL }}img/spinner.gif" />
+        </td>
+    </tr>
+    {% endfor %}    
+{% endfor %}
+</table>
+
+<script type="text/javascript">
+
+var ajax_data = {{ ajax_data|safe }};
+/*
+    ajax_data = [ [method_pk, list_of_metric_pks] ]
+*/
+
+$(function() {
+    $(ajax_data).each(function() {
+        var method = this[0];
+        var metrics = this[1];
+        $(metrics).each(function(index, metric) {
+            console.log('Running test for method ', method, ' using metric ', metric);
+            $.post('{% url services:ajax_measure %}', 
+                {
+                    method_pk: method,
+                    metric_pk: metric
+                }, 
+                function(data) {
+                    $('#method-' + method + '-metric-' + metric).text(data);
+                    console.log('from method ', method, ', metric ', metric, ' got ', data);
+                }).error(function() {
+                    $('#method-' + method + '-metric-' + metric).html('<img class="error-icon" src="{{ STATIC_URL }}img/error.png" alt="Wystąpił błąd podczas pomiaru." title="Wystąpił błąd podczas pomiaru."/>');
+                    console.log('error ', method, ', metric ', metric);
+                });
+        });
+    });
+});
+
+</script>
+
+{% comment %}
+
 {% for method, metrics, results in methods %}
 <h2>Dla metody {{ method.name }}:</h2>
 <ul>
@@ -19,6 +68,8 @@
     {% endfor %}
 </ul>
 {% endfor %}
+
+{% endcomment %}
 
 {% endblock %}
 
