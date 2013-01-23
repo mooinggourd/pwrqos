@@ -21,6 +21,14 @@ import json
 import services.forms
 
 # TODO: przenieść w lepsze miejsce
+matching_types = {
+    bool: 'boolean',
+    int: 'integer',
+    float: 'float',
+    str: 'string',
+    unicode: 'string',
+}
+
 def run_test(method, metric):
     metric_mname = metric.method.name
     metric_wsdl = metric.method.service.wsdl_url
@@ -38,17 +46,19 @@ def run_test(method, metric):
             time=datetime.now(), tested_method=method)
         measurement.save()
 
-        # TODO: wykrywanie typów zwracanych wartości
-        try:          
-            v = float(result)
-            kind_name = 'float'
-        except ValueError:
-            try:                        
-                v = int(result)
-                kind_name = 'int'
-            except ValueError:                    
-                v = unicode(result)
-                kind_name = 'string'
+        kind_name = matching_types.get(type(result), 'unknown')
+        v = unicode(result)                    
+
+        #try:          
+        #    v = float(result)
+        #    kind_name = 'float'
+        #except ValueError:
+        #    try:                        
+        #        v = int(result)
+        #        kind_name = 'int'
+        #    except ValueError:                    
+        #        v = unicode(result)
+        #        kind_name = 'string'
             
         kind, _ = Kind.objects.get_or_create(name=kind_name,
             namespace='http://www.w3.org/2001/XMLSchema')
