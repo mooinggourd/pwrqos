@@ -85,7 +85,7 @@ class Method(models.Model):
 
     def __unicode__(self):
         params = ', '.join(map(unicode, self.methodparam_set.all()))
-        return '%s(%s): %s' % (self.name, params, self.returned_kind)
+        return '%s(%s): %s' % (self.name, params, self.service.name)
 
 class MethodParam(models.Model):
     method = models.ForeignKey(Method, verbose_name='Metoda')
